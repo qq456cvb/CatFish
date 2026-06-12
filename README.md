@@ -1,33 +1,23 @@
 # CatFish
 
-<!-- README refined by Cursor -->
+A solution to the "小猫钓鱼" (cat fishing) puzzle from the **Geeker's Party 2022 spring monthly contest**: how long does the children's card game last? The script answers it twice — by Monte-Carlo simulation and by an analytic random-walk argument — and plots the two distributions side by side.
 
-Geeker’s party2022春月赛-小猫钓鱼
+## The Game
 
-## Overview
+Two players split a deck evenly. Each turn a player plays a card onto a shared pile; if it matches a card already in the pile, they scoop up everything from the match onward. A player loses when their hand is empty. (`playgame` implements these full rules with random play.)
 
-This repository contains Python code from an older research, course, or prototype project. The README has been refreshed to make the repository easier to scan while preserving the original notes below.
+## The Analysis (`montecarlo.py`)
 
-## Repository Contents
+- **Simplified model** (`game_simp`) — each turn the hand-size difference behaves like a **lazy ±1 random walk**: with probability ¼ player A wins a card, ¼ player B does, ½ nothing changes. The game ends when one hand is empty, i.e. when the walk hits ±c (c = half the deck).
+- **Analytic distribution** (`calc_P`) — the probability that the game survives n turns is computed exactly: the n-step distribution comes from convolution powers of `[¼, ½, ¼]`, and absorption at the two barriers is handled by a **reflection-principle inclusion–exclusion** over images at odd multiples of c.
+- **Validation** — the main block runs 100 000 simulated games with an 8-card deck, histograms the game lengths, and overlays the analytic curve, which matches the Monte-Carlo distribution.
 
-- Top-level source files and project assets.
+## Running
 
-## Setup
+Requires NumPy, SciPy, Matplotlib, and tqdm.
 
-- This legacy repo does not pin a full environment. Start from the language/toolchain implied by the source files, then install missing packages as reported by the runtime.
+```bash
+python montecarlo.py
+```
 
-## Usage
-
-- inspect the top-level Python entry points: `montecarlo.py`
-
-## Data and Artifacts
-
-No new large artifact is stored in this repository. If a dataset or checkpoint is required, follow the links and notes in the original section below.
-
-## Status
-
-This is a `Batch C` cleanup pass for a legacy repository. Commands may require dependency/version adjustments on a modern machine.
-
-## License
-
-No explicit license file was found in this checkout; check the original project context before reusing code.
+Edit `cards` in the main block to change the deck (e.g. a full 54-card deck), and swap `game_simp` for `playgame` to simulate the real rules rather than the random-walk approximation.
